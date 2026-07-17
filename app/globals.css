@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-white text-ink font-sans antialiased;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-light tracking-wide;
+  }
+}
+
+@layer components {
+  /* Page width wrapper */
+  .container-x {
+    @apply mx-auto w-full max-w-container px-5 sm:px-8;
+  }
+
+  /* Big centered page titles used on inner pages (SHOP, ABOUT US ...) */
+  .page-title {
+    @apply text-center text-4xl sm:text-5xl font-light uppercase tracking-[0.12em] text-ink;
+  }
+
+  /* Buttons */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 text-xs font-medium uppercase tracking-[0.12em] transition-colors duration-200;
+  }
+  .btn-dark {
+    @apply btn bg-ink px-6 py-3 text-white hover:bg-black;
+  }
+  .btn-brand {
+    @apply btn bg-brand px-6 py-3 text-white hover:bg-brand-dark;
+  }
+  .btn-outline {
+    @apply btn border border-ink px-6 py-3 text-ink hover:bg-ink hover:text-white;
+  }
+
+  /* Section heading (left-aligned, e.g. MOBILE PRODUCTS) */
+  .section-heading {
+    @apply text-xl font-light uppercase tracking-[0.1em] text-ink;
+  }
+
+  .link-muted {
+    @apply text-muted transition-colors hover:text-ink;
+  }
+}
