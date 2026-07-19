@@ -28,8 +28,8 @@ export const products: Product[] = [
 ];
 
 // Standalone hero / marketing imagery
-export const heroImage = "/images/banner-image.png";
-export const saleImage = "/images/single-image1.png";
+export const heroImage = "/images/banner-image1.png";
+export const saleImage = "/images/single-image11.png";
 export const aboutImage = "/images/single-image2.jpg";
 export const blogDetailImage = "/images/single-image3.jpg";
 export const blogInlineImage = "/images/product-item6.jpg";

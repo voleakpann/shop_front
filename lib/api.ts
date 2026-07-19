@@ -99,6 +99,31 @@ export async function createOrder(payload: OrderPayload): Promise<OrderResult> {
   }
 }
 
+export type PaymentIntentResult =
+  | { ok: true; clientSecret: string }
+  | { ok: false; error: string };
+
+/** Creates a Stripe PaymentIntent for an already-created order, for use with an embedded card form. */
+export async function createPaymentIntent(orderId: number): Promise<PaymentIntentResult> {
+  const token = getAuthToken();
+  if (!token) {
+    return { ok: false, error: "You must sign in with Google before paying." };
+  }
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/orders/${orderId}/payment-intent`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) {
+      return { ok: false, error: `Could not start payment (${res.status}).` };
+    }
+    const { clientSecret } = (await res.json()) as { clientSecret: string };
+    return { ok: true, clientSecret };
+  } catch {
+    return { ok: false, error: "Could not reach the order service. Is the backend running?" };
+  }
+}
+
 export async function fetchProduct(slug: string): Promise<Product | null> {
   try {
     const res = await fetch(`${API_BASE_URL}/api/products/${slug}`, { cache: "no-store" });

@@ -2,8 +2,18 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import {
+  CardCvcElement,
+  CardExpiryElement,
+  CardNumberElement,
+  Elements,
+  useElements,
+  useStripe,
+} from "@stripe/react-stripe-js";
 import { useCart } from "@/lib/cart";
-import { createOrder } from "@/lib/api";
+import { createOrder, createPaymentIntent } from "@/lib/api";
+import { getStripe } from "@/lib/stripe";
+import CardField from "@/components/CardField";
 
 const inputClass =
   "w-full border border-line px-4 py-3 text-sm outline-none transition-colors placeholder:text-muted focus:border-brand";
@@ -11,32 +21,25 @@ const labelClass = "block text-sm text-ink";
 
 const payments = [
   {
-    id: "bank",
-    title: "Direct bank transfer",
-    text: "Make your payment directly into our bank account. Please use your Order ID. Your order will shipped after funds have cleared in our account.",
+    id: "card",
+    title: "Credit / Debit card",
+    text: "Enter your card details below, securely processed by Stripe.",
   },
   {
-    id: "check",
-    title: "Check payments",
-    text: "Please send a check to Store Name, Store Street, Store Town, Store State / County, Store Postcode.",
-  },
-  {
-    id: "cod",
+    id: "cash",
     title: "Cash on delivery",
-    text: "Pay with cash upon delivery.",
-  },
-  {
-    id: "paypal",
-    title: "Paypal",
-    text: "Pay via PayPal; you can pay with your credit card if you don't have a PayPal account.",
+    text: "Pay with cash when your order arrives. No online payment needed.",
   },
 ];
 
 const money = (n: number) =>
   n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-export default function CheckoutForm() {
+function CheckoutFormInner() {
   const { items, subtotal, clearCart } = useCart();
+  const stripe = useStripe();
+  const elements = useElements();
+  const [paymentMethod, setPaymentMethod] = useState<"card" | "cash">("card");
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -68,6 +71,12 @@ export default function CheckoutForm() {
       return;
     }
 
+    const cardNumber = paymentMethod === "card" ? elements?.getElement(CardNumberElement) : null;
+    if (paymentMethod === "card" && (!stripe || !elements || !cardNumber)) {
+      setError("Payment form isn't ready yet. Please wait a moment and try again.");
+      return;
+    }
+
     setSubmitting(true);
     const result = await createOrder({
       customerName: `${firstName} ${lastName}`.trim(),
@@ -79,17 +88,49 @@ export default function CheckoutForm() {
       notes,
       items: items.map((l) => ({ slug: l.slug, name: l.name, price: l.price, qty: l.qty })),
     });
+
+    if (!result.ok) {
+      setSubmitting(false);
+      setError(result.error);
+      return;
+    }
+
+    if (paymentMethod === "cash") {
+      // No online payment step — the order is confirmed immediately and paid
+      // for in person on delivery.
+      setSubmitting(false);
+      setPlacedOrder({ id: result.order.id, total: result.order.total });
+      clearCart();
+      return;
+    }
+
+    // Card: create the PaymentIntent for this order, then confirm it with the
+    // card details already entered on this page.
+    const intent = await createPaymentIntent(result.order.id);
+    if (!intent.ok) {
+      setSubmitting(false);
+      setError(intent.error);
+      return;
+    }
+
+    const { error: confirmError, paymentIntent } = await stripe!.confirmCardPayment(intent.clientSecret, {
+      payment_method: { card: cardNumber! },
+    });
     setSubmitting(false);
 
-    if (result.ok) {
+    if (confirmError) {
+      setError(confirmError.message ?? "Payment failed. Please check your card details.");
+      return;
+    }
+    if (paymentIntent?.status === "succeeded") {
       setPlacedOrder({ id: result.order.id, total: result.order.total });
       clearCart();
     } else {
-      setError(result.error);
+      setError("Payment was not completed. Please try again.");
     }
   };
 
-  // ---- Confirmation ----
+  // ---- Confirmation (cash order placed, or card payment succeeded) ----
   if (placedOrder) {
     return (
       <div className="mx-auto max-w-md py-10 text-center">
@@ -98,10 +139,15 @@ export default function CheckoutForm() {
             <path d="m5 13 4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </div>
-        <h2 className="text-2xl font-light uppercase tracking-[0.06em] text-ink">Order placed!</h2>
+        <h2 className="text-2xl font-light uppercase tracking-[0.06em] text-ink">
+          {paymentMethod === "card" ? "Payment received!" : "Order placed!"}
+        </h2>
         <p className="mt-4 text-sm text-muted">
           Thank you. Your order <span className="text-brand">#{placedOrder.id}</span> for{" "}
-          <span className="text-brand">${money(placedOrder.total)}</span> has been received.
+          <span className="text-brand">${money(placedOrder.total)}</span>{" "}
+          {paymentMethod === "card"
+            ? "has been paid and is being processed."
+            : "will be paid in cash on delivery."}
         </p>
         <Link href="/shop" className="btn-dark mt-8">Continue Shopping</Link>
       </div>
@@ -219,31 +265,59 @@ export default function CheckoutForm() {
 
         {/* Payment methods */}
         <div className="mt-8 space-y-4">
-          {payments.map((p, i) => (
-            <label key={p.id} className="flex gap-3">
-              <input
-                type="radio"
-                name="payment"
-                value={p.id}
-                defaultChecked={i === 0}
-                className="mt-1 h-4 w-4 shrink-0 accent-brand"
-              />
-              <span>
-                <strong className="block text-sm uppercase tracking-[0.04em] text-ink">
-                  {p.title}
-                </strong>
-                <small className="mt-1 block text-xs leading-relaxed text-muted">{p.text}</small>
-              </span>
-            </label>
+          {payments.map((p) => (
+            <div key={p.id}>
+              <label className="flex gap-3">
+                <input
+                  type="radio"
+                  name="payment"
+                  value={p.id}
+                  checked={paymentMethod === p.id}
+                  onChange={() => setPaymentMethod(p.id as "card" | "cash")}
+                  className="mt-1 h-4 w-4 shrink-0 accent-brand"
+                />
+                <span>
+                  <strong className="block text-sm uppercase tracking-[0.04em] text-ink">
+                    {p.title}
+                  </strong>
+                  <small className="mt-1 block text-xs leading-relaxed text-muted">{p.text}</small>
+                </span>
+              </label>
+
+              {/* Card fields nested right under the "Credit / Debit card" option, not after the whole list */}
+              {p.id === "card" && paymentMethod === "card" && (
+                <div className="ml-7 mt-4 space-y-4">
+                  <CardField label="Card Number" Element={CardNumberElement} />
+                  <div className="grid grid-cols-2 gap-4">
+                    <CardField label="Expiry Date" Element={CardExpiryElement} />
+                    <CardField label="CVC" Element={CardCvcElement} />
+                  </div>
+                </div>
+              )}
+            </div>
           ))}
         </div>
 
         {error && <p className="mt-6 text-sm text-brand">{error}</p>}
 
-        <button type="submit" className="btn-dark mt-8" disabled={submitting}>
-          {submitting ? "Placing order…" : "Place An Order"}
+        <button
+          type="submit"
+          className="btn-dark mt-8"
+          disabled={submitting || (paymentMethod === "card" && !stripe)}
+        >
+          {submitting
+            ? "Placing order…"
+            : paymentMethod === "card" ? "Pay Now" : "Place Order (Cash on Delivery)"}
         </button>
       </div>
     </form>
+  );
+}
+
+export default function CheckoutForm() {
+  return (
+    <Elements stripe={getStripe()}>
+      <CheckoutFormInner />
+    </Elements>
   );
 }

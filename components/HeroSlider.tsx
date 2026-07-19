@@ -8,14 +8,17 @@ import { heroImage } from "@/lib/data";
 
 const slides = [
   { title: "Technology Hack You Won't Get", cta: "Shop Product", href: "/shop", image: "/images/item_pc.png" },
-  { title: "Your Products Are Great.", cta: "Shop Product", href: "/shop", image: heroImage },
-  { title: "New Year Sale Is On.", cta: "Shop Sale", href: "/shop", image: "/images/compare_iphone17.png" },
+  { title: "Your Products Are Great.", cta: "Shop Product", href: "/shop", image: "/images/banner-image1.png" },
+  { title: "New Year Sale Is On.", cta: "Shop Sale", href: "/shop", image: "/images/compare_iphone12.png" },
 ];
 
 // Clone the last slide before the first and the first after the last, so the
 // track can always move in the SAME direction and never scroll backwards.
 // Rendered order: [cloneLast, s0, s1, s2, cloneFirst]  → positions 0..count+1
 const extended = [slides[slides.length - 1], ...slides, slides[0]];
+
+const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+const extOf = (path: string) => path.split(".").pop() || "png";
 
 export default function HeroSlider() {
   const count = slides.length;
@@ -96,6 +99,8 @@ export default function HeroSlider() {
                     alt="banner"
                     sizes="(max-width: 768px) 90vw, 620px"
                     className="mx-auto aspect-square w-full max-w-md lg:max-w-xl"
+                    downloadable
+                    downloadName={`${slugify(slide.title)}.${extOf(slide.image)}`}
                   />
                 </div>
               </div>

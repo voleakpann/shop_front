@@ -106,6 +106,13 @@ export const LinkedinIcon = ({ className = "h-4 w-4" }: IconProps) => (
     <path d="M6.9 8.5H3.7V20h3.2V8.5zM5.3 3.4a1.9 1.9 0 1 0 0 3.7 1.9 1.9 0 0 0 0-3.7zM20.3 20v-6.3c0-3.4-1.8-4.9-4.2-4.9-1.9 0-2.8 1-3.2 1.8V8.5H9.7c0 .9 0 11.5 0 11.5h3.2v-6.4c0-.3 0-.7.1-.9.3-.6.9-1.3 1.9-1.3 1.3 0 1.9 1 1.9 2.5V20h3.6z" />
   </svg>
 );
+export const DownloadIcon = ({ className = "h-4 w-4" }: IconProps) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} className={className}>
+    <path d="M12 3v12m0 0 4-4m-4 4-4-4" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
 export const MailIcon = ({ className = "h-4 w-4" }: IconProps) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} className={className}>
     <rect x="3" y="5" width="18" height="14" rx="2" />

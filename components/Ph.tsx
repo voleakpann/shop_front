@@ -1,4 +1,5 @@
 import Image from "next/image";
+import DownloadButton from "./DownloadButton";
 
 /**
  * Image with graceful fallback.
@@ -14,6 +15,8 @@ export default function Ph({
   glyph = "product",
   fit = "cover",
   sizes = "(max-width: 768px) 100vw, 400px",
+  downloadable = false,
+  downloadName,
 }: {
   src?: string;
   alt?: string;
@@ -22,10 +25,13 @@ export default function Ph({
   glyph?: "product" | "watch" | "photo";
   fit?: "cover" | "contain";
   sizes?: string;
+  /** Show a hover button to download the original, full-resolution file. */
+  downloadable?: boolean;
+  downloadName?: string;
 }) {
   if (src) {
     return (
-      <div className={`relative overflow-hidden ${className}`}>
+      <div className={`group relative overflow-hidden ${className}`}>
         <Image
           src={src}
           alt={alt}
@@ -34,6 +40,9 @@ export default function Ph({
           draggable={false}
           className={fit === "contain" ? "object-contain" : "object-cover"}
         />
+        {downloadable && (
+          <DownloadButton src={src} filename={downloadName} className="bottom-3 right-3" />
+        )}
       </div>
     );
   }

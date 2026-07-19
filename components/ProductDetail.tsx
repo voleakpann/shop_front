@@ -41,6 +41,8 @@ export default function ProductDetail({ product }: { product: Product }) {
             fit="contain"
             sizes="(max-width: 1024px) 100vw, 560px"
             className="h-full w-full"
+            downloadable
+            downloadName={`${product.slug}.${(product.image || "jpg").split(".").pop()}`}
           />
         </div>
 
