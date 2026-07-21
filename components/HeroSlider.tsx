@@ -9,7 +9,7 @@ import { heroImage } from "@/lib/data";
 const slides = [
   { title: "Technology Hack You Won't Get", cta: "Shop Product", href: "/shop", image: "/images/item_pc.png" },
   { title: "Your Products Are Great.", cta: "Shop Product", href: "/shop", image: "/images/banner-image1.png" },
-  { title: "New Year Sale Is On.", cta: "Shop Sale", href: "/shop", image: "/images/compare_iphone12.png" },
+  { title: "New Year Sale Is On.", cta: "Shop Sale", href: "/shop", image: "/images/compare_iphone17.png" },
 ];
 
 // Clone the last slide before the first and the first after the last, so the
