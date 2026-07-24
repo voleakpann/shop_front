@@ -1,0 +1,135 @@
+# =============================================================================
+# MiniStore — full stack on one host (Docker Compose)
+#
+# Expected layout on the server (see DEPLOY-AWS.md):
+#   ~/ministore/
+#     ├── frontend/            (git clone of the frontend repo — this project)
+#     ├── backend/             (git clone of the backend repo; has the 5 services)
+#     ├── docker-compose.yml   (this file, copied from frontend/deploy/)
+#     ├── Caddyfile            (copied from frontend/deploy/)
+#     ├── postgres-init.sql    (copied from frontend/deploy/)
+#     └── .env                 (created from frontend/deploy/.env.example)
+#
+# Run:  docker compose up -d --build
+# =============================================================================
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./postgres-init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  discovery-server:
+    build: ./backend/discovery-server
+    restart: unless-stopped
+    # Eureka registry — other services register here.
+
+  api-gateway:
+    build: ./backend/api-gateway
+    restart: unless-stopped
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
+      SERVER_FORWARD_HEADERS_STRATEGY: framework
+      # Allowed browser origin for CORS (your frontend). See DEPLOY note if the
+      # gateway hardcodes this in application.yml.
+      FRONTEND_ORIGIN: https://app.${DOMAIN}
+    depends_on:
+      - discovery-server
+
+  auth-service:
+    build: ./backend/auth-service
+    restart: unless-stopped
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/ministore_auth
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      MINISTORE_JWT_SECRET: ${MINISTORE_JWT_SECRET}
+      AUTH_GOOGLE_ID: ${AUTH_GOOGLE_ID}
+      AUTH_GOOGLE_SECRET: ${AUTH_GOOGLE_SECRET}
+      SERVER_FORWARD_HEADERS_STRATEGY: framework
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
+      # Where auth-service sends the browser after a successful Google login:
+      APP_FRONTEND_REDIRECT_URI: https://app.${DOMAIN}/account
+    depends_on:
+      postgres:
+        condition: service_healthy
+      discovery-server:
+        condition: service_started
+
+  product-service:
+    build: ./backend/product-service
+    restart: unless-stopped
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/ministore_products
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      MINISTORE_JWT_SECRET: ${MINISTORE_JWT_SECRET}
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
+    depends_on:
+      postgres:
+        condition: service_healthy
+      discovery-server:
+        condition: service_started
+
+  order-service:
+    build: ./backend/order-service
+    restart: unless-stopped
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/ministore_orders
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      MINISTORE_JWT_SECRET: ${MINISTORE_JWT_SECRET}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-server:8761/eureka/
+    depends_on:
+      postgres:
+        condition: service_healthy
+      discovery-server:
+        condition: service_started
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        # NEXT_PUBLIC_* are baked in at build time.
+        NEXT_PUBLIC_API_BASE_URL: https://api.${DOMAIN}
+        NEXT_PUBLIC_AUTH_BASE_URL: https://auth.${DOMAIN}
+        NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}
+    restart: unless-stopped
+    depends_on:
+      - api-gateway
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: ${DOMAIN}
+      ACME_EMAIL: ${ACME_EMAIL}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - frontend
+      - api-gateway
+      - auth-service
+
+volumes:
+  pgdata:
+  caddy_data:
+  caddy_config:

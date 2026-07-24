@@ -127,7 +127,10 @@ export async function createPaymentIntent(orderId: number): Promise<PaymentInten
 export async function fetchProduct(slug: string): Promise<Product | null> {
   try {
     const res = await fetch(`${API_BASE_URL}/api/products/${slug}`, { cache: "no-store" });
-    if (res.status === 404) return null;
+    // A 404 may be a genuine "no such product" OR a foreign app answering on the
+    // API port while the real backend is down. Prefer local data if we have it,
+    // so detail pages stay consistent with the homepage/shop fallback behaviour.
+    if (res.status === 404) return getLocalProduct(slug) ?? null;
     if (!res.ok) throw new Error(`Product API returned ${res.status}`);
     return (await res.json()) as Product;
   } catch (err) {

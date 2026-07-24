@@ -9,3 +9,6 @@ npm-debug.log*
 next-env.d.ts.bak
 /.vercel
 /.turbo
+
+# Claude Code local config
+.claude/

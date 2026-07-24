@@ -1,0 +1,21 @@
+# Caddy auto-provisions HTTPS (Let's Encrypt) for each site below.
+# Requires DNS A-records: app / api / auth  ->  your EC2 public IP.
+
+{
+	email {$ACME_EMAIL}
+}
+
+# Storefront (Next.js)
+app.{$DOMAIN} {
+	reverse_proxy frontend:3000
+}
+
+# API gateway (products, orders, payment-intent)
+api.{$DOMAIN} {
+	reverse_proxy api-gateway:8080
+}
+
+# Auth service (Google OAuth login → JWT)
+auth.{$DOMAIN} {
+	reverse_proxy auth-service:8081
+}

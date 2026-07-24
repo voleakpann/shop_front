@@ -134,17 +134,18 @@ export default function AccountView() {
     clearForm();
   };
 
-  // Reusable "Continue with Google" button — goes through auth-service's
-  // Google login, which redirects back here with ?token=<JWT>.
+  // Reusable "Continue with Google" button — logs in via the backend
+  // auth-service (Spring). It runs the Google OAuth flow and redirects back to
+  // /account?token=<JWT>, which the effect above stores as `ministore_jwt`.
+  // That JWT is what product/order-service accept, so checkout works.
   const googleButton = (
-    <button
-      type="button"
-      onClick={() => (window.location.href = `${AUTH_BASE_URL}/oauth2/authorization/google`)}
+    <a
+      href={`${AUTH_BASE_URL}/oauth2/authorization/google`}
       className="flex w-full items-center justify-center gap-3 rounded-full border border-line bg-white px-4 py-3 text-sm text-ink transition-colors hover:bg-band"
     >
       <GoogleIcon />
       Continue with Google
-    </button>
+    </a>
   );
 
   // Avoid a flash of the wrong state before session + localStorage are read.
