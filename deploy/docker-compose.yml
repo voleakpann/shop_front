@@ -104,9 +104,13 @@ services:
       context: ./frontend
       args:
         # NEXT_PUBLIC_* are baked in at build time.
-        NEXT_PUBLIC_API_BASE_URL: https://api.${DOMAIN}
-        NEXT_PUBLIC_AUTH_BASE_URL: https://auth.${DOMAIN}
+        # No domain yet — reachable directly at http://<EC2-host>:3000, same as
+        # api-gateway (:8000) and auth-service (:9001).
+        NEXT_PUBLIC_API_BASE_URL: http://ec2-52-201-50-44.compute-1.amazonaws.com:8000
+        NEXT_PUBLIC_AUTH_BASE_URL: http://ec2-52-201-50-44.compute-1.amazonaws.com:9001
         NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}
+    ports:
+      - "3000:3000"
     restart: unless-stopped
     depends_on:
       - api-gateway
