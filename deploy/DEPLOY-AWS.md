@@ -7,9 +7,9 @@ without the complexity of ECS/EKS.
 ```
 Internet ── Route53 DNS ──► EC2 (Elastic IP)
                              └─ Caddy (:80/:443, HTTPS)
-                                ├─ app.<domain>  → frontend:3000
-                                ├─ api.<domain>  → api-gateway:8080
-                                └─ auth.<domain> → auth-service:8081
+                                ├─ <domain>       → frontend:3000
+                                ├─ api.<domain>   → api-gateway:8080
+                                └─ auth.<domain>  → auth-service:8081
                                      └─ discovery / product / order / postgres (internal)
 ```
 
@@ -20,8 +20,9 @@ Internet ── Route53 DNS ──► EC2 (Elastic IP)
 - A **domain** you own (Route 53, Namecheap, etc.).
 - Your **Google OAuth** client and **Stripe** keys.
 
-## 1. Register a domain & plan 3 subdomains
-You'll point these at the server (step 5): `app.<domain>`, `api.<domain>`, `auth.<domain>`.
+## 1. Register a domain & plan the records
+You'll point these at the server (step 5): the bare `<domain>` (frontend), plus
+`api.<domain>` and `auth.<domain>`.
 
 ## 2. Launch an EC2 instance
 - **AMI:** Ubuntu Server 24.04 LTS
@@ -54,11 +55,11 @@ sudo usermod -aG docker ubuntu && newgrp docker
 ## 5. Point DNS at the server
 In your DNS provider, create **A records** (all → your Elastic IP):
 ```
-app.<domain>   A   <elastic-ip>
+<domain>       A   <elastic-ip>
 api.<domain>   A   <elastic-ip>
 auth.<domain>  A   <elastic-ip>
 ```
-Wait until they resolve (`nslookup app.<domain>`).
+Wait until they resolve (`nslookup <domain>`).
 
 ## 6. Get the code & config onto the server
 ```bash
@@ -88,7 +89,7 @@ docker compose up -d --build      # first build takes several minutes
 docker compose ps                 # all should be "running"/"healthy"
 docker compose logs -f api-gateway   # tail a service if needed
 ```
-Caddy fetches TLS certs automatically once DNS resolves. Visit **https://app.<domain>**.
+Caddy fetches TLS certs automatically once DNS resolves. Visit **https://<domain>**.
 
 ---
 
@@ -98,7 +99,7 @@ actually reads them (Spring relaxed-binding). Check these in the **backend repo*
 
 1. **api-gateway CORS** (`api-gateway/src/main/resources/application.yml`) —
    `allowedOrigins` may be hard-coded to `http://localhost:3000`. Change it to
-   read `${FRONTEND_ORIGIN:http://localhost:3000}` (or set it to `https://app.<domain>`).
+   read `${FRONTEND_ORIGIN:http://localhost:3000}` (or set it to `https://<domain>`).
 2. **auth-service redirect** — the `frontend-redirect-uri` property should read
    `${APP_FRONTEND_REDIRECT_URI:http://localhost:3000/account}`. Adjust the env
    key in `docker-compose.yml` to match the real property prefix if different.

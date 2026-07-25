@@ -5,8 +5,8 @@
 	email {$ACME_EMAIL}
 }
 
-# Storefront (Next.js)
-app.{$DOMAIN} {
+# Storefront (Next.js) — served at the bare root domain
+{$DOMAIN} {
 	reverse_proxy frontend:3000
 }
 
