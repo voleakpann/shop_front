@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import Ph from "./Ph";
 import { ChevronLeft, ChevronRight } from "./icons";
@@ -49,22 +49,16 @@ export default function HeroSlider() {
     }
   }, [animate]);
 
-  // Auto-play every 5s; pause while hovering the billboard.
-  const paused = useRef(false);
+  // Auto-play every 5s, forever — never pauses.
   useEffect(() => {
     const id = setInterval(() => {
-      if (!paused.current) setPos((p) => p + 1);
+      setPos((p) => p + 1);
     }, 5000);
     return () => clearInterval(id);
   }, []);
 
   return (
-    <section
-      id="billboard"
-      className="relative overflow-hidden bg-band"
-      onMouseEnter={() => (paused.current = true)}
-      onMouseLeave={() => (paused.current = false)}
-    >
+    <section id="billboard" className="relative overflow-hidden bg-band">
       {/* Track */}
       <div
         className="flex"
