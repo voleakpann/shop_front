@@ -1,10 +1,10 @@
 import { TruckIcon, BadgeIcon, TagIcon, ShieldIcon } from "./icons";
 
 const features = [
-  { Icon: TruckIcon, title: "Free Delivery", text: "Consectetur adipi elit lorem ipsum dolor sit amet." },
-  { Icon: BadgeIcon, title: "Quality Guarantee", text: "Dolor sit amet orem ipsu mcons ectetur adipi elit." },
-  { Icon: TagIcon, title: "Daily Offers", text: "Amet consectetur adipi elit loreme ipsum dolor sit." },
-  { Icon: ShieldIcon, title: "100% Secure Payment", text: "Rem Lopsum dolor sit amet, consectetur adipi elit." },
+  { Icon: TruckIcon, title: "Free Delivery", text: "Free shipping on every order, no minimum spend required." },
+  { Icon: BadgeIcon, title: "Quality Guarantee", text: "Every product is checked for quality before it ships." },
+  { Icon: TagIcon, title: "Daily Offers", text: "New deals and discounts added to the store every day." },
+  { Icon: ShieldIcon, title: "100% Secure Payment", text: "Your payment details are encrypted and always protected." },
 ];
 
 export default function FeatureBar() {

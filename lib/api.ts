@@ -138,3 +138,61 @@ export async function fetchProduct(slug: string): Promise<Product | null> {
     return getLocalProduct(slug) ?? null;
   }
 }
+
+// ---- Comments -----------------------------------------------------------------
+
+export type CommentThread = {
+  id: number;
+  userName: string;
+  content: string;
+  createdAt: string;
+  replies: CommentThread[];
+};
+
+/** Lists a product's comments as a thread. Public — no auth required. */
+export async function fetchComments(slug: string): Promise<CommentThread[]> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/comments/${slug}`, { cache: "no-store" });
+    if (!res.ok) throw new Error(`Comments API returned ${res.status}`);
+    return (await res.json()) as CommentThread[];
+  } catch (err) {
+    console.warn(`[api] Could not load comments for "${slug}".`, err);
+    return [];
+  }
+}
+
+export type PostCommentResult = { ok: true } | { ok: false; error: string };
+
+/**
+ * Posts a comment on a product, or a reply when parentId is set. Requires a
+ * valid JWT (Google login) — the author is always taken from the token.
+ */
+export async function postComment(
+  slug: string,
+  content: string,
+  parentId?: number
+): Promise<PostCommentResult> {
+  const token = getAuthToken();
+  if (!token) {
+    return { ok: false, error: "You must sign in with Google before commenting." };
+  }
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/comments/${slug}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ content, parentId: parentId ?? null }),
+    });
+    if (res.status === 401) {
+      return { ok: false, error: "Your session expired. Please sign in with Google again." };
+    }
+    if (!res.ok) {
+      return { ok: false, error: `Could not post comment (${res.status}).` };
+    }
+    return { ok: true };
+  } catch {
+    return { ok: false, error: "Could not reach the comment service. Is the backend running?" };
+  }
+}

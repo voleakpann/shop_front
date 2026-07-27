@@ -6,6 +6,7 @@ import Ph from "./Ph";
 import { StarIcon } from "./icons";
 import type { Product } from "@/lib/data";
 import { useCart } from "@/lib/cart";
+import CommentThread from "./CommentThread";
 
 const colors = [
   { name: "Orange", value: "#e08a4b" },
@@ -14,7 +15,7 @@ const colors = [
   { name: "Black", value: "#1e1e1e" },
 ];
 const sizes = ["XL", "L", "M", "S"];
-const tabs = ["Description", "Additional Information", "Reviews (2)"];
+const tabs = ["Description", "Additional Information", "Comments"];
 
 export default function ProductDetail({ product }: { product: Product }) {
   const { addToCart } = useCart();
@@ -58,9 +59,9 @@ export default function ProductDetail({ product }: { product: Product }) {
             ${product.price.toFixed(2)}
           </p>
           <p className="mt-4 max-w-md text-sm leading-relaxed text-muted">
-            Juisju, cum feugiat imperdiet nulla malorito ac vulputate pulor tquor
-            amt. Bibendon adipiscing platea blandit sit sed quam semper rhoncus.
-            Etiam ultrices mavosua consequat.
+            A refined blend of premium materials and everyday durability,
+            designed to keep up with your routine without compromising on
+            style or performance.
           </p>
 
           {/* Color */}
@@ -150,18 +151,19 @@ export default function ProductDetail({ product }: { product: Product }) {
             <div className="space-y-4">
               <p className="font-medium text-ink">Product Description</p>
               <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque
-                volutpat mattis eros. Nullam malesuada erat ut turpis.
-                Suspendisse urna nibh, viverra non, semper suscipit, posuere a,
-                pede. Donec nec justo eget felis facilisi fermentum.
+                Built for daily use, this product pairs a clean, modern design
+                with reliable performance. Every detail, from the finish to
+                the fit, is crafted to feel premium while staying practical
+                for everyday life.
               </p>
               <ul className="list-disc space-y-1 pl-5">
-                <li>Donec nec justo eget felis facilisi fermentum.</li>
-                <li>Suspendisse urna nibh non semper suscipit pede.</li>
+                <li>Durable, premium-grade materials</li>
+                <li>Lightweight and comfortable for all-day use</li>
               </ul>
               <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque
-                volutpat mattis eros. Nullam malesuada erat ut turpis.
+                Backed by our standard warranty and satisfaction guarantee,
+                it&apos;s designed to be a dependable part of your routine for
+                years to come.
               </p>
             </div>
           )}
@@ -172,9 +174,7 @@ export default function ProductDetail({ product }: { product: Product }) {
               <li className="flex justify-between border-b border-line py-2"><span className="text-ink">Sizes</span><span>XL, L, M, S</span></li>
             </ul>
           )}
-          {tab === 2 && (
-            <p>There are 2 reviews for this product. Be the first of your friends to leave a review.</p>
-          )}
+          {tab === 2 && <CommentThread slug={product.slug} />}
         </div>
       </div>
     </>

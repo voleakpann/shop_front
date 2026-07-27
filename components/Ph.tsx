@@ -17,6 +17,7 @@ export default function Ph({
   sizes = "(max-width: 768px) 100vw, 400px",
   downloadable = false,
   downloadName,
+  priority = false,
 }: {
   src?: string;
   alt?: string;
@@ -28,6 +29,8 @@ export default function Ph({
   /** Show a hover button to download the original, full-resolution file. */
   downloadable?: boolean;
   downloadName?: string;
+  /** Skip lazy-loading — use for above-the-fold images (e.g. the visible hero slide). */
+  priority?: boolean;
 }) {
   if (src) {
     return (
@@ -38,6 +41,7 @@ export default function Ph({
           fill
           sizes={sizes}
           draggable={false}
+          priority={priority}
           className={fit === "contain" ? "object-contain" : "object-cover"}
         />
         {downloadable && (

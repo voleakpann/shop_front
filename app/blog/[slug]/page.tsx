@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import PageHeader from "@/components/PageHeader";
-import CommentForm from "@/components/CommentForm";
+import BlogCommentForm from "@/components/BlogCommentForm";
 import Newsletter from "@/components/Newsletter";
 import Ph from "@/components/Ph";
 import {
@@ -26,9 +26,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 const comments = [
-  { name: "Sam Smith", date: "Feb 22, 2023" },
-  { name: "Jantie Mary", date: "Feb 22, 2023", reply: true },
-  { name: "Marlon Rosa", date: "Feb 22, 2023" },
+  { name: "Sam Smith", date: "Feb 22, 2023", text: "Great breakdown, this helped me decide what to upgrade first." },
+  { name: "Jantie Mary", date: "Feb 22, 2023", reply: true, text: "Agreed — battery life matters way more than people give it credit for." },
+  { name: "Marlon Rosa", date: "Feb 22, 2023", text: "Would love a follow-up post comparing specific models." },
 ];
 
 export default async function BlogDetailPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -58,47 +58,46 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
 
           <div className="mt-8 space-y-5 text-sm leading-relaxed text-muted">
             <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Consectetur
-              facilisis vivamus massa magna. Blandit mauris libero condimentum
-              commodo morbi consectetur iaculis convallis elit. Magna diam amet
-              justo sed nisl dolor id volutpat integer.
+              Technology moves fast, and it&apos;s easy to fall behind on the small
+              upgrades that actually make a difference day to day. In this post
+              we break down what&apos;s worth your attention right now, and why
+              it matters more than the marketing hype suggests.
             </p>
 
             <blockquote className="border-l-2 border-ink py-2 pl-6 text-lg font-light italic leading-relaxed text-ink">
-              &ldquo;Sit suscipit tortor turpis sed fringilla lectus facilisis amet.
-              Ipsum, amet dolor curabitur non aliquet orci urna volutpat. Id aliquam
-              neque, ut vivamus sit imperdiet enim, lacus, vel.&rdquo;
+              &ldquo;The best upgrades aren&apos;t always the flashiest ones —
+              they&apos;re the ones you stop noticing because they just work.&rdquo;
             </blockquote>
 
             <h3 className="pt-2 text-sm font-medium uppercase tracking-[0.1em] text-ink">Are You Amazed?</h3>
             <ul className="list-disc space-y-2 pl-5">
-              <li>Blandit mauris libero condimentum commodo morbi convallis.</li>
-              <li>Magna diam amet justo sed nisl dolor id volutpat integer.</li>
-              <li>Iaculis et mattis hac odio semper egestas neque.</li>
+              <li>Faster performance without a bigger price tag.</li>
+              <li>Battery life that actually lasts a full day.</li>
+              <li>Build quality that holds up to daily wear and tear.</li>
             </ul>
 
             <p>
-              Morbi arcu proin, nulla fermentum vitae mauris ut mi convallis. Lorem
-              sollicitudin in vestibulum vel Turpis faucibus quam quam in ullamcorper.
+              None of this is about chasing every new release. It&apos;s about
+              knowing which features are genuinely useful versus which ones are
+              just there to sell you an upgrade you don&apos;t need.
             </p>
 
             <div className="grid grid-cols-1 gap-6 py-4 sm:grid-cols-[200px_1fr] sm:items-center">
               <Ph src={blogInlineImage} alt="Detail" sizes="200px" className="aspect-square w-full" />
               <div>
                 <h4 className="text-sm font-medium uppercase tracking-[0.1em] text-ink">
-                  Velit, Praesent Pharetra Malesuada
+                  What To Look For
                 </h4>
                 <p className="mt-2">
-                  Ut pulvinar amet. Consequat pretium mollis massa auctor et. Dolor
-                  eget lectus. Risus pellentesque scelerisque felis.
+                  Focus on build quality, real-world battery life, and how well
+                  a product fits into what you already own.
                 </p>
               </div>
             </div>
 
             <p>
-              Velit, ut nunc ultrices malesuada id aenean amet. Consequat pulvinar
-              mollis mauris iaculis odio, eget metus. Aliquet pellentesque molestie
-              felis lorem sed eget consectetur eget.
+              Whichever option you choose, make sure it solves an actual problem
+              you have rather than one a product page invented for you.
             </p>
           </div>
 
@@ -139,8 +138,7 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
                       {c.name} <span className="ml-2 text-xs font-normal text-muted">{c.date}</span>
                     </p>
                     <p className="mt-1 text-sm leading-relaxed text-muted">
-                      Mollis pulvinar sem viverra amet pellentesque. Odio nisi consequat
-                      donec pellentesque. Porta a diam habitasse eget leo lectus.
+                      {c.text}
                     </p>
                     <button className="mt-1 text-xs font-medium text-brand hover:text-ink">Read More</button>
                   </div>
@@ -152,7 +150,7 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
           {/* Leave a comment */}
           <div className="mt-14">
             <h3 className="mb-6 text-lg font-light uppercase tracking-[0.08em] text-ink">Leave A Comment</h3>
-            <CommentForm />
+            <BlogCommentForm />
           </div>
         </div>
       </article>

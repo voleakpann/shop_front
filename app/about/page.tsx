@@ -34,13 +34,14 @@ export default function AboutPage() {
               How Was MiniStore Found?
             </h2>
             <p className="mt-5 text-sm leading-relaxed text-muted">
-              Risus augue condim itum evasus congue velit at. Sed vitae risus id
-              lorem ipsum ferto referum a nation velit et pellentesque hercios
-              ridiculus id. Et libero vulputate amet elit sed volutpat integer.
+              MiniStore started as a small side project between friends who
+              wanted a simpler way to shop for everyday tech — no clutter, no
+              pressure, just products worth owning at prices that make sense.
             </p>
             <p className="mt-4 text-sm leading-relaxed text-muted">
-              Sed vitae mosus nibh ultrices. Nulla adipiscing pharetra pellentesque
-              maecenas odio arcu ac. Et libero vulputate amet duis at volutpat.
+              Today we work with a small team of curators who test everything
+              we sell, so you can trust that what lands in your cart is worth
+              the price tag.
             </p>
             <Link href="/shop" className="btn-dark mt-7">Shop Our Store</Link>
           </div>

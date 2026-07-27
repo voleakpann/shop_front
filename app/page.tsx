@@ -1,19 +1,16 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import Ph from "@/components/Ph";
 import HeroSlider from "@/components/HeroSlider";
 import FeatureBar from "@/components/FeatureBar";
-import ProductRow from "@/components/ProductRow";
+import ProductSections from "@/components/ProductSections";
+import ProductRowSkeleton from "@/components/ProductRowSkeleton";
 import Testimonial from "@/components/Testimonial";
 import Newsletter from "@/components/Newsletter";
 import ShopInsta from "@/components/ShopInsta";
 import { posts, saleImage } from "@/lib/data";
-import { fetchProducts } from "@/lib/api";
 
-export default async function HomePage() {
-  const products = await fetchProducts();
-  const phones = products.filter((p) => p.category === "Phones");
-  const watches = products.filter((p) => p.category === "Watches");
-
+export default function HomePage() {
   return (
     <>
       {/* Hero */}
@@ -21,8 +18,16 @@ export default async function HomePage() {
 
       <FeatureBar />
 
-      <ProductRow id="products" title="Mobile Products" products={phones} />
-      <ProductRow id="watches" title="Smart Watches" products={watches} />
+      <Suspense
+        fallback={
+          <>
+            <ProductRowSkeleton title="Mobile Products" />
+            <ProductRowSkeleton title="Smart Watches" />
+          </>
+        }
+      >
+        <ProductSections />
+      </Suspense>
 
       {/* Sale banner — full-bleed light band with the image as a right-aligned background */}
       <section

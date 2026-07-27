@@ -29,7 +29,8 @@ export default function ContactPage() {
           <div>
             <h2 className="text-2xl font-light uppercase tracking-[0.06em] text-ink">Contact Info</h2>
             <p className="mt-3 max-w-sm text-sm leading-relaxed text-muted">
-              Tortor dignissim convallis aenean et tortor at risus viverra adipiscing.
+              Have a question about an order, a product, or anything else?
+              Reach out and our team will get back to you shortly.
             </p>
             <div className="mt-8 grid grid-cols-1 gap-8 sm:grid-cols-2">
               <InfoBlock title="Office" />

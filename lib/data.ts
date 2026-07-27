@@ -76,7 +76,7 @@ export const posts: Post[] = [
     date: "Feb 22, 2023",
     category: "Gadgets",
     excerpt:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Consectetur facilisis vivamus massa magna.",
+      "From smart home hubs to wireless chargers, here are the gadgets worth adding to your setup this year.",
     image: "/images/post-item1.jpg",
   },
   {
@@ -85,7 +85,7 @@ export const posts: Post[] = [
     date: "Feb 22, 2023",
     category: "Technology",
     excerpt:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Consectetur facilisis vivamus massa magna.",
+      "A few lesser-known tricks buried in your devices' settings that can genuinely improve daily use.",
     image: "/images/post-item2.jpg",
   },
   {
@@ -94,7 +94,7 @@ export const posts: Post[] = [
     date: "Feb 22, 2023",
     category: "Camera",
     excerpt:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Consectetur facilisis vivamus massa magna.",
+      "Compact doesn't mean low quality — these tiny cameras pack surprisingly sharp results.",
     image: "/images/post-item3.jpg",
   },
 ];

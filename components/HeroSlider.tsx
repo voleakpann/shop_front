@@ -1,15 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Ph from "./Ph";
 import { ChevronLeft, ChevronRight } from "./icons";
-import { heroImage } from "@/lib/data";
 
 const slides = [
-  { title: "Technology Hack You Won't Get", cta: "Shop Product", href: "/shop", image: "/images/item_pc.png" },
-  { title: "Your Products Are Great.", cta: "Shop Product", href: "/shop", image: "/images/banner-image1.png" },
-  { title: "New Year Sale Is On.", cta: "Shop Sale", href: "/shop", image: "/images/compare_iphone17.png" },
+  { title: "Technology Hack You Won't Get", cta: "Shop Product", href: "/shop", image: "/images/banner_mac.png" },
+  { title: "Smart Living Starts Here", cta: "Shop Product", href: "/shop", image: "/images/banner-image11.png" },
+  { title: "New Year Sale Is On.", cta: "Shop Sale", href: "/shop", image: "/images/iphone7.png" },
 ];
 
 // Clone the last slide before the first and the first after the last, so the
@@ -22,23 +21,67 @@ const extOf = (path: string) => path.split(".").pop() || "png";
 
 export default function HeroSlider() {
   const count = slides.length;
-  const [pos, setPos] = useState(1); // 1 = first real slide (after the prepended clone)
+  const [pos, setPosState] = useState(1); // 1 = first real slide (after the prepended clone)
   const [animate, setAnimate] = useState(true);
+
+  // `pos` mirrored into a ref so callbacks (especially the autoplay interval,
+  // which closes over its initial render) always read the latest value.
+  const posRef = useRef(pos);
+  useEffect(() => {
+    posRef.current = pos;
+  }, [pos]);
+
+  // Tracks whether a slide transition is currently in flight, so autoplay and
+  // manual nav can never both bump `pos` in the same window — without this,
+  // an overlapping bump can push `pos` past count+1 with nothing there to
+  // land on, leaving the track permanently scrolled into empty space.
+  const animating = useRef(false);
+  const fallbackTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const realIndex = (pos - 1 + count) % count;
 
-  const go = useCallback((dir: number) => setPos((p) => p + dir), []);
-  const jumpTo = (i: number) => setPos(i + 1);
-
-  // When we land on a clone, snap (without animation) to the matching real slide.
-  const handleTransitionEnd = () => {
-    if (pos === count + 1) {
-      setAnimate(false);
-      setPos(1);
-    } else if (pos === 0) {
-      setAnimate(false);
-      setPos(count);
+  const clearFallback = useCallback(() => {
+    if (fallbackTimer.current !== null) {
+      clearTimeout(fallbackTimer.current);
+      fallbackTimer.current = null;
     }
+  }, []);
+
+  // Finishes the in-flight transition: clears the lock and, if we landed on
+  // a cloned slide, silently snaps back to the matching real one.
+  const finishTransition = useCallback(() => {
+    clearFallback();
+    animating.current = false;
+    const p = posRef.current;
+    if (p === count + 1) {
+      setAnimate(false);
+      setPosState(1);
+    } else if (p === 0) {
+      setAnimate(false);
+      setPosState(count);
+    }
+  }, [count, clearFallback]);
+
+  const advance = useCallback(
+    (newPos: number) => {
+      if (animating.current) return;
+      animating.current = true;
+      setPosState(newPos);
+      clearFallback();
+      // `transitionend` can fail to fire if the tab is backgrounded mid-transition
+      // (browsers may suspend the animation entirely) — this fallback guarantees
+      // the carousel can never get stuck showing a half-finished transition.
+      fallbackTimer.current = setTimeout(finishTransition, 800);
+    },
+    [clearFallback, finishTransition]
+  );
+
+  const go = useCallback((dir: number) => advance(posRef.current + dir), [advance]);
+  const jumpTo = useCallback((i: number) => advance(i + 1), [advance]);
+
+  const handleTransitionEnd = (e: React.TransitionEvent<HTMLDivElement>) => {
+    if (e.target !== e.currentTarget || e.propertyName !== "transform") return;
+    finishTransition();
   };
 
   // Re-enable the transition on the next frame after a silent snap.
@@ -51,11 +94,11 @@ export default function HeroSlider() {
 
   // Auto-play every 5s, forever — never pauses.
   useEffect(() => {
-    const id = setInterval(() => {
-      setPos((p) => p + 1);
-    }, 5000);
+    const id = setInterval(() => advance(posRef.current + 1), 5000);
     return () => clearInterval(id);
-  }, []);
+  }, [advance]);
+
+  useEffect(() => clearFallback, [clearFallback]);
 
   return (
     <section id="billboard" className="relative overflow-hidden bg-band">
@@ -95,6 +138,7 @@ export default function HeroSlider() {
                     className="mx-auto aspect-square w-full max-w-md lg:max-w-xl"
                     downloadable
                     downloadName={`${slugify(slide.title)}.${extOf(slide.image)}`}
+                    priority={i >= 1 && i <= count}
                   />
                 </div>
               </div>
