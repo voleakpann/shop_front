@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import PageHeader from "@/components/PageHeader";
-import BlogCommentForm from "@/components/BlogCommentForm";
+import CommentThread from "@/components/CommentThread";
 import Newsletter from "@/components/Newsletter";
 import Ph from "@/components/Ph";
 import {
@@ -13,7 +13,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "@/components/icons";
-import { posts, getPost, blogInlineImage, commentAvatars } from "@/lib/data";
+import { posts, getPost, blogInlineImage } from "@/lib/data";
 
 export function generateStaticParams() {
   return posts.map((p) => ({ slug: p.slug }));
@@ -24,12 +24,6 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const post = getPost(slug);
   return { title: post ? `${post.title} — MiniStore` : "Blog — MiniStore" };
 }
-
-const comments = [
-  { name: "Sam Smith", date: "Feb 22, 2023", text: "Great breakdown, this helped me decide what to upgrade first." },
-  { name: "Jantie Mary", date: "Feb 22, 2023", reply: true, text: "Agreed — battery life matters way more than people give it credit for." },
-  { name: "Marlon Rosa", date: "Feb 22, 2023", text: "Would love a follow-up post comparing specific models." },
-];
 
 export default async function BlogDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -126,31 +120,10 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
             </Link>
           </div>
 
-          {/* Comments */}
+          {/* Comments — real, auth-aware (logged-in users just type; others are
+              prompted to sign in with Google; name/email come from the account) */}
           <div className="mt-14">
-            <h3 className="mb-8 text-lg font-light uppercase tracking-[0.08em] text-ink">3 Comments</h3>
-            <ul className="space-y-6">
-              {comments.map((c, i) => (
-                <li key={i} className={`flex gap-4 ${c.reply ? "ml-10" : ""}`}>
-                  <Ph src={commentAvatars[i % commentAvatars.length]} alt={c.name} sizes="48px" className="h-12 w-12 shrink-0 rounded-full" />
-                  <div>
-                    <p className="text-sm font-medium text-ink">
-                      {c.name} <span className="ml-2 text-xs font-normal text-muted">{c.date}</span>
-                    </p>
-                    <p className="mt-1 text-sm leading-relaxed text-muted">
-                      {c.text}
-                    </p>
-                    <button className="mt-1 text-xs font-medium text-brand hover:text-ink">Read More</button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Leave a comment */}
-          <div className="mt-14">
-            <h3 className="mb-6 text-lg font-light uppercase tracking-[0.08em] text-ink">Leave A Comment</h3>
-            <BlogCommentForm />
+            <CommentThread slug={post.slug} />
           </div>
         </div>
       </article>
