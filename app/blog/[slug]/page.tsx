@@ -123,7 +123,7 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
           {/* Comments — real, auth-aware (logged-in users just type; others are
               prompted to sign in with Google; name/email come from the account) */}
           <div className="mt-14">
-            <CommentThread slug={post.slug} />
+            <CommentThread slug={`blog-${post.slug}`} />
           </div>
         </div>
       </article>
