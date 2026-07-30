@@ -5,7 +5,9 @@
 .DS_Store
 *.pem
 npm-debug.log*
-.env*
+.env
+.env.local
+.env.*.local
 next-env.d.ts.bak
 /.vercel
 /.turbo
