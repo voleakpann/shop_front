@@ -144,8 +144,11 @@ export async function fetchProduct(slug: string): Promise<Product | null> {
 export type CommentThread = {
   id: number;
   userName: string;
+  userEmail: string;
   content: string;
   createdAt: string;
+  deleted?: boolean;
+  likeCount?: number;
   replies: CommentThread[];
 };
 
@@ -190,6 +193,29 @@ export async function postComment(
     }
     if (!res.ok) {
       return { ok: false, error: `Could not post comment (${res.status}).` };
+    }
+    return { ok: true };
+  } catch {
+    return { ok: false, error: "Could not reach the comment service. Is the backend running?" };
+  }
+}
+
+/** Deletes your own comment (soft delete). Requires a valid JWT. */
+export async function deleteComment(commentId: number): Promise<PostCommentResult> {
+  const token = getAuthToken();
+  if (!token) {
+    return { ok: false, error: "You must sign in with Google." };
+  }
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/comments/${commentId}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (res.status === 401) {
+      return { ok: false, error: "Your session expired. Please sign in with Google again." };
+    }
+    if (!res.ok) {
+      return { ok: false, error: `Could not delete comment (${res.status}).` };
     }
     return { ok: true };
   } catch {
