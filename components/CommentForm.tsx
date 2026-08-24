@@ -27,7 +27,7 @@ export default function CommentForm({
   const [error, setError] = useState("");
   const [showLoginModal, setShowLoginModal] = useState(false);
 
-  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // When pre-filled with an "@mention", set cursor to the end so new text appends correctly
   useEffect(() => {
