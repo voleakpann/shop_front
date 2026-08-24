@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { AUTH_BASE_URL, postComment } from "@/lib/api";
+import { postComment } from "@/lib/api";
 import { useAuth } from "@/lib/useAuth";
+import LoginModal from "./LoginModal";
 
 const inputClass =
   "w-full border border-line px-4 py-3 text-sm outline-none transition-colors placeholder:text-muted focus:border-brand";
@@ -24,6 +25,7 @@ export default function CommentForm({
   const [content, setContent] = useState(initialContent ?? "");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
@@ -57,7 +59,7 @@ export default function CommentForm({
     onPosted();
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     // Ctrl+Enter or Cmd+Enter submits the form
     if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
       e.preventDefault();
@@ -68,12 +70,17 @@ export default function CommentForm({
   if (!ready) return null;
 
   if (!loggedIn) {
-    const loginUrl = `${AUTH_BASE_URL}/oauth2/authorization/google`;
     return (
-      <p className="text-sm text-muted">
-        <a href={loginUrl} className="text-brand hover:underline">Sign in with Google</a>{" "}
-        to {parentId ? "reply" : "leave a comment"}.
-      </p>
+      <>
+        <button
+          onClick={() => setShowLoginModal(true)}
+          className="text-sm text-brand hover:underline"
+        >
+          Sign in with Google
+        </button>
+        {" "}to {parentId ? "reply" : "leave a comment"}.
+        <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
+      </>
     );
   }
 
@@ -81,9 +88,8 @@ export default function CommentForm({
   if (parentId) {
     return (
       <form className="space-y-2 mt-2" onSubmit={submit}>
-        <input
+        <textarea
           ref={textareaRef}
-          type="text"
           className={`${inputClass} min-h-10 py-2`}
           placeholder="Write a reply..."
           value={content}

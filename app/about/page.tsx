@@ -3,7 +3,6 @@ import PageHeader from "@/components/PageHeader";
 import FeatureBar from "@/components/FeatureBar";
 import Testimonial from "@/components/Testimonial";
 import Newsletter from "@/components/Newsletter";
-import ShopInsta from "@/components/ShopInsta";
 import Ph from "@/components/Ph";
 import { aboutImage } from "@/lib/data";
 
@@ -50,7 +49,6 @@ export default function AboutPage() {
 
       <Testimonial />
       <Newsletter />
-      <ShopInsta />
     </>
   );
 }

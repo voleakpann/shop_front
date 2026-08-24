@@ -174,7 +174,7 @@ export default function ProductDetail({ product }: { product: Product }) {
               <li className="flex justify-between border-b border-line py-2"><span className="text-ink">Sizes</span><span>XL, L, M, S</span></li>
             </ul>
           )}
-          {tab === 2 && <CommentThread slug={product.slug} />}
+          {tab === 2 && <CommentThread slug={`product-${product.slug}`} />}
         </div>
       </div>
     </>

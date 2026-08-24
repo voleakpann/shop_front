@@ -9,10 +9,9 @@ function InfoBlock({ title }: { title: string }) {
     <div>
       <h4 className="text-sm font-medium uppercase tracking-[0.1em] text-ink">{title}</h4>
       <div className="mt-3 space-y-1 text-sm leading-relaxed text-muted">
-        <p>730 Glenstone Ave 65802, Springfield, US</p>
-        <p>+123 222 333 44</p>
-        <p>+123 666 777 88</p>
-        <p className="text-brand">mini.store@yourinfo.com</p>
+        <p>Teuk Thla, Phnom Penh, Cambodia</p>
+        <p>0964 040 006</p>
+        <p className="text-brand">pvoleak55@gmail.com</p>
       </div>
     </div>
   );

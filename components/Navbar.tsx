@@ -12,16 +12,16 @@ const mainLinks = [
   { label: "Products", href: "/#products" },
   { label: "Watches", href: "/#watches" },
   { label: "Sale", href: "/#sale" },
-  { label: "Blog", href: "/blog" },
+  // { label: "Blog", href: "/blog" }, // Temporarily hidden
 ];
 
 const pagesLinks = [
   { label: "About", href: "/about" },
-  { label: "Blog", href: "/blog" },
+  // { label: "Blog", href: "/blog" }, // Temporarily hidden
   { label: "Shop", href: "/shop" },
   { label: "Cart", href: "/cart" },
   { label: "Checkout", href: "/checkout" },
-  { label: "Single Post", href: "/blog/technology-hack-you-wont-get" },
+  // { label: "Single Post", href: "/blog/technology-hack-you-wont-get" }, // Temporarily hidden
   { label: "Single Product", href: "/product/pink-watch" },
   { label: "Contact", href: "/contact" },
 ];

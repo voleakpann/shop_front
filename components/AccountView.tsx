@@ -3,8 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useSession, signOut } from "next-auth/react";
-import { AUTH_BASE_URL } from "@/lib/api";
+import { useSession, signOut, signIn } from "next-auth/react";
 
 // Multi-colour Google "G" logo for the sign-in button.
 function GoogleIcon() {
@@ -60,18 +59,19 @@ export default function AccountView() {
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
 
-  // Load any saved session on first render.
+  // Load any saved session on first render
   useEffect(() => {
     setUser(localStorage.getItem(STORAGE_KEY));
 
     // auth-service redirects here with ?token=<JWT> after a Google login.
     const tokenFromUrl = searchParams.get("token");
+    const stored = localStorage.getItem(JWT_STORAGE_KEY);
+
     if (tokenFromUrl) {
       localStorage.setItem(JWT_STORAGE_KEY, tokenFromUrl);
       setBackendUser(decodeJwt(tokenFromUrl));
       router.replace("/account");
     } else {
-      const stored = localStorage.getItem(JWT_STORAGE_KEY);
       const claims = stored ? decodeJwt(stored) : null;
       if (claims?.exp && claims.exp * 1000 < Date.now()) {
         localStorage.removeItem(JWT_STORAGE_KEY);
@@ -83,6 +83,17 @@ export default function AccountView() {
     setReady(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Save NextAuth session to localStorage when session changes
+  useEffect(() => {
+    if (session?.user) {
+      const stored = localStorage.getItem(JWT_STORAGE_KEY);
+      if (!stored) {
+        const token = btoa(JSON.stringify({ email: session.user.email, name: session.user.name }));
+        localStorage.setItem(JWT_STORAGE_KEY, token);
+      }
+    }
+  }, [session?.user]);
 
   const clearForm = () => {
     setName("");
@@ -134,12 +145,11 @@ export default function AccountView() {
     clearForm();
   };
 
-  // Reusable "Continue with Google" button — goes through auth-service's
-  // Google login, which redirects back here with ?token=<JWT>.
+  // Reusable "Continue with Google" button — uses NextAuth for Google OAuth.
   const googleButton = (
     <button
       type="button"
-      onClick={() => (window.location.href = `${AUTH_BASE_URL}/oauth2/authorization/google`)}
+      onClick={() => signIn("google")}
       className="flex w-full items-center justify-center gap-3 rounded-full border border-line bg-white px-4 py-3 text-sm text-ink transition-colors hover:bg-band"
     >
       <GoogleIcon />

@@ -82,14 +82,14 @@ export default function Footer() {
           <p className="text-sm leading-relaxed text-muted">
             Do you have any queries or suggestions?
           </p>
-          <a href="mailto:yourinfo@gmail.com" className="mt-1 block text-sm text-brand">
-            yourinfo@gmail.com
+          <a href="mailto:pvoleak55@gmail.com" className="mt-1 block text-sm text-brand">
+            pvoleak55@gmail.com
           </a>
           <p className="mt-4 text-sm leading-relaxed text-muted">
             If you need support? Just give us a call.
           </p>
-          <a href="tel:+5511122233344" className="mt-1 block text-sm text-brand">
-            +55 111 222 333 44
+          <a href="tel:0964040006" className="mt-1 block text-sm text-brand">
+            0964 040 006
           </a>
         </div>
       </div>

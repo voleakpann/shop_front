@@ -1,7 +1,6 @@
 import PageHeader from "@/components/PageHeader";
 import CartView from "@/components/CartView";
 import Newsletter from "@/components/Newsletter";
-import ShopInsta from "@/components/ShopInsta";
 
 export const metadata = { title: "Cart — MiniStore" };
 
@@ -13,7 +12,6 @@ export default function CartPage() {
         <CartView />
       </section>
       <Newsletter />
-      <ShopInsta />
     </>
   );
 }

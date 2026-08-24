@@ -18,11 +18,11 @@ export const products: Product[] = [
   { slug: "iphone-10", name: "iPhone 10", price: 980, category: "Phones", tags: ["White", "Modern"], brand: "Apple", image: "/images/product-item1.jpg", featured: true },
   { slug: "iphone-11", name: "iPhone 12", price: 1100, category: "Phones", tags: ["White", "Modern"], brand: "Apple", image: "/images/iphone12.jpg" },
   { slug: "iphone-16", name: "iPhone 16", price: 780, category: "Phones", tags: ["White", "Cheap"], brand: "Apple", image: "/images/iphone_.jpg" },
-  { slug: "pink-watch", name: "Pink Watch", price: 870, category: "Watches", tags: ["Classic", "Modern"], brand: "Apple", image: "/images/product-item6.jpg", featured: true },
-  { slug: "heavy-watch", name: "Heavy Watch", price: 680, category: "Watches", tags: ["Modern"], brand: "Samsung", image: "/images/product-item7.jpg" },
-  { slug: "spotted-watch", name: "Spotted Watch", price: 750, category: "Watches", tags: ["Classic"], brand: "Green", image: "/images/product-item8.jpg" },
-  { slug: "spotted-watch-2", name: "Spotted Watch", price: 750, category: "Watches", tags: ["Classic"], brand: "Green", image: "/images/product-item9.jpg" },
-  { slug: "black-watch", name: "Black Watch", price: 450, category: "Watches", tags: ["Modern"], brand: "Samsung", image: "/images/product-item10.jpg" },
+  { slug: "apple-watch-series-9", name: "Apple Watch Series 9", price: 399, category: "Watches", tags: ["Smart", "Modern"], brand: "Apple", image: "/images/smartwatch-1.jpg", featured: true },
+  { slug: "samsung-galaxy-watch-6", name: "Samsung Galaxy Watch 6 Pro", price: 449, category: "Watches", tags: ["Smart", "Modern"], brand: "Samsung", image: "/images/smartwatch-2.jpg" },
+  { slug: "google-pixel-watch-2", name: "Google Pixel Watch 2", price: 349, category: "Watches", tags: ["Smart", "Modern"], brand: "Green", image: "/images/smartwatch-3.jpg" },
+  { slug: "fitbit-sense-2", name: "Fitbit Sense 2", price: 299, category: "Watches", tags: ["Health", "Fitness"], brand: "Apple", image: "/images/smartwatch-4.jpg" },
+  { slug: "garmin-epix-gen-2", name: "Garmin Epix Generation 2", price: 699, category: "Watches", tags: ["Sport", "Premium"], brand: "Samsung", image: "/images/smartwatch-5.jpg" },
   { slug: "iphone-13", name: "iPhone 13", price: 1500, category: "Phones", tags: ["Modern", "White"], brand: "Apple", image: "/images/product-item4.jpg", featured: true },
   { slug: "iphone-12", name: "iPhone 12", price: 1300, category: "Phones", tags: ["Modern"], brand: "Apple", image: "/images/product-item5.jpg" },
 ];
@@ -54,7 +54,7 @@ export const getProduct = (slug: string) =>
   products.find((p) => p.slug === slug);
 
 export const categories = ["All", "Phones", "Accessories", "Tablets", "Watches"];
-export const productTags = ["White", "Cheap", "Mobile", "Modern"];
+export const productTags = ["Modern", "Premium", "Popular", "Professional", "Standard", "Smart", "Affordable"];
 export const brands = ["Apple", "Samsung", "Green"];
 export const priceRanges = ["Less than $10", "$10 - $20", "$20 - $30", "$30 - $40", "$40 - $50"];
 

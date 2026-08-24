@@ -9,8 +9,11 @@ export default function ShopInsta() {
         {instaImages.map((src, i) => (
           <a
             key={i}
-            href="#"
+            href="https://instagram.com/yourstore"
+            target="_blank"
+            rel="noopener noreferrer"
             className="group relative block aspect-square overflow-hidden"
+            title="Follow us on Instagram"
           >
             <Ph
               src={src}
@@ -18,7 +21,9 @@ export default function ShopInsta() {
               sizes="(max-width: 768px) 50vw, 220px"
               className="h-full w-full transition-transform duration-300 group-hover:scale-105"
             />
-            <span className="absolute inset-0 bg-ink/0 transition-colors group-hover:bg-ink/10" />
+            <span className="absolute inset-0 bg-ink/0 transition-colors group-hover:bg-ink/10 flex items-center justify-center">
+              <span className="text-white text-2xl opacity-0 group-hover:opacity-100 transition-opacity">📷</span>
+            </span>
           </a>
         ))}
       </div>

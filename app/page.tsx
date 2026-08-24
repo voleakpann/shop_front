@@ -7,30 +7,47 @@ import ProductSections from "@/components/ProductSections";
 import ProductRowSkeleton from "@/components/ProductRowSkeleton";
 import Testimonial from "@/components/Testimonial";
 import Newsletter from "@/components/Newsletter";
-import ShopInsta from "@/components/ShopInsta";
-import { posts, saleImage } from "@/lib/data";
+import AnimatedBlock from "@/components/AnimatedBlock";
+import { saleImage } from "@/lib/data";
+import { fetchBlogPosts } from "@/lib/api";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const blogData = await fetchBlogPosts({ page: 0, size: 3 });
+  const posts = blogData?.content.map((post) => ({
+    ...post,
+    image: post.coverImage || "/images/post-image.jpg",
+    date: new Date(post.publishedAt).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    }),
+  })) || [];
+
   return (
     <>
-      {/* Hero */}
+      {/* Hero — NOT animated on scroll (above fold, has own transition) */}
       <HeroSlider />
 
-      <FeatureBar />
+      <AnimatedBlock as="div">
+        <FeatureBar />
+      </AnimatedBlock>
 
-      <Suspense
-        fallback={
-          <>
-            <ProductRowSkeleton title="Mobile Products" />
-            <ProductRowSkeleton title="Smart Watches" />
-          </>
-        }
-      >
-        <ProductSections />
-      </Suspense>
+      <AnimatedBlock as="div">
+        <Suspense
+          fallback={
+            <>
+              <ProductRowSkeleton title="Mobile Products" />
+              <ProductRowSkeleton title="Smart Watches" />
+            </>
+          }
+        >
+          <ProductSections />
+        </Suspense>
+      </AnimatedBlock>
 
       {/* Sale banner — full-bleed light band with the image as a right-aligned background */}
-      <section
+      <AnimatedBlock
+        as="section"
         id="sale"
         className="relative mt-12 flex min-h-[660px] scroll-mt-20 items-center overflow-hidden bg-band bg-no-repeat"
         style={{
@@ -54,10 +71,10 @@ export default function HomePage() {
             </Link>
           </div>
         </div>
-      </section>
+      </AnimatedBlock>
 
       {/* Latest posts */}
-      <section className="container-x py-12">
+      <AnimatedBlock as="section" className="container-x py-12">
         <div className="mb-8 flex items-center justify-between">
           <h2 className="section-heading">Latest Posts</h2>
           <Link href="/blog" className="text-xs font-medium uppercase tracking-[0.12em] text-muted hover:text-brand">
@@ -65,8 +82,12 @@ export default function HomePage() {
           </Link>
         </div>
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-          {posts.map((post) => (
-            <article key={post.slug} className="group">
+          {posts.map((post, idx) => (
+            <article
+              key={post.slug}
+              className="card-cascade group"
+              style={{ transitionDelay: `${idx * 80}ms` }}
+            >
               <Link href={`/blog/${post.slug}`} className="block aspect-[4/3] overflow-hidden">
                 <Ph src={post.image} alt={post.title} sizes="(max-width: 768px) 100vw, 380px" className="h-full w-full transition-transform duration-500 group-hover:scale-105" />
               </Link>
@@ -79,11 +100,15 @@ export default function HomePage() {
             </article>
           ))}
         </div>
-      </section>
+      </AnimatedBlock>
 
-      <Testimonial />
-      <Newsletter />
-      <ShopInsta />
+      <AnimatedBlock as="div">
+        <Testimonial />
+      </AnimatedBlock>
+
+      <AnimatedBlock as="div">
+        <Newsletter />
+      </AnimatedBlock>
     </>
   );
 }

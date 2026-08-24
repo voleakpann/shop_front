@@ -13,27 +13,85 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "@/components/icons";
-import { posts, getPost, blogInlineImage } from "@/lib/data";
+import { blogInlineImage } from "@/lib/data";
+
+async function fetchBlogPost(slug: string) {
+  try {
+    const url = `/api/blog-posts/${slug}`;
+    console.log("Fetching blog post from:", url);
+    const res = await fetch(url, {
+      cache: "no-store",
+    });
+    console.log("Blog post response status:", res.status, res.statusText);
+    if (!res.ok) {
+      console.error("Failed to fetch blog post: non-200 response");
+      return null;
+    }
+    const data = await res.json();
+    console.log("Blog post fetched successfully:", data.title);
+    return data;
+  } catch (err) {
+    console.error("Failed to fetch blog post:", err);
+    return null;
+  }
+}
+
+async function fetchAllPosts() {
+  try {
+    const res = await fetch("/api/blog-posts?page=0&size=100", {
+      cache: "no-store",
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.content || [];
+  } catch (err) {
+    console.error("Failed to fetch posts:", err);
+    return [];
+  }
+}
 
 export function generateStaticParams() {
-  return posts.map((p) => ({ slug: p.slug }));
+  return [{ slug: "technology-hack-you-wont-get" }];
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const post = getPost(slug);
+  const post = await fetchBlogPost(slug);
   return { title: post ? `${post.title} — MiniStore` : "Blog — MiniStore" };
+}
+
+type BlogPost = {
+  id: number;
+  slug: string;
+  title: string;
+  excerpt: string;
+  category: string;
+  publishedAt: string;
+  coverImage?: string;
+  authorName?: string;
+};
+
+function getImageForPost(post: BlogPost): string {
+  // Use API image directly
+  return post.coverImage || "/images/post-image.jpg";
 }
 
 export default async function BlogDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const post = getPost(slug);
+  const post = await fetchBlogPost(slug);
   if (!post) notFound();
 
-  const related = posts.filter((p) => p.slug !== post.slug);
-  const idx = posts.findIndex((p) => p.slug === post.slug);
-  const prev = posts[(idx - 1 + posts.length) % posts.length];
-  const next = posts[(idx + 1) % posts.length];
+  const allPosts = await fetchAllPosts();
+  const related = allPosts.filter((p: BlogPost) => p.slug !== post.slug).slice(0, 3);
+  const idx = allPosts.findIndex((p: BlogPost) => p.slug === post.slug);
+  const prev = allPosts[(idx - 1 + allPosts.length) % allPosts.length];
+  const next = allPosts[(idx + 1) % allPosts.length];
+
+  const postDate = new Date(post.publishedAt).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
 
   return (
     <>
@@ -42,63 +100,34 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
       <article className="container-x py-14">
         <div className="mx-auto max-w-3xl">
           <p className="text-[11px] uppercase tracking-[0.1em] text-muted">
-            {post.date} · {post.category}
+            {postDate} · {post.category}
           </p>
           <h1 className="mt-3 text-2xl font-normal uppercase tracking-[0.04em] text-ink sm:text-3xl">
             {post.title}
           </h1>
 
-          <Ph src={post.image} alt={post.title} sizes="(max-width: 768px) 100vw, 768px" className="mt-8 aspect-[16/9] w-full" />
+          <Ph src={getImageForPost(post)} alt={post.title} sizes="(max-width: 768px) 100vw, 768px" className="mt-8 aspect-[16/9] w-full" />
 
           <div className="mt-8 space-y-5 text-sm leading-relaxed text-muted">
-            <p>
-              Technology moves fast, and it&apos;s easy to fall behind on the small
-              upgrades that actually make a difference day to day. In this post
-              we break down what&apos;s worth your attention right now, and why
-              it matters more than the marketing hype suggests.
-            </p>
-
-            <blockquote className="border-l-2 border-ink py-2 pl-6 text-lg font-light italic leading-relaxed text-ink">
-              &ldquo;The best upgrades aren&apos;t always the flashiest ones —
-              they&apos;re the ones you stop noticing because they just work.&rdquo;
-            </blockquote>
-
-            <h3 className="pt-2 text-sm font-medium uppercase tracking-[0.1em] text-ink">Are You Amazed?</h3>
-            <ul className="list-disc space-y-2 pl-5">
-              <li>Faster performance without a bigger price tag.</li>
-              <li>Battery life that actually lasts a full day.</li>
-              <li>Build quality that holds up to daily wear and tear.</li>
-            </ul>
-
-            <p>
-              None of this is about chasing every new release. It&apos;s about
-              knowing which features are genuinely useful versus which ones are
-              just there to sell you an upgrade you don&apos;t need.
-            </p>
+            <p>{post.excerpt}</p>
 
             <div className="grid grid-cols-1 gap-6 py-4 sm:grid-cols-[200px_1fr] sm:items-center">
               <Ph src={blogInlineImage} alt="Detail" sizes="200px" className="aspect-square w-full" />
               <div>
                 <h4 className="text-sm font-medium uppercase tracking-[0.1em] text-ink">
-                  What To Look For
+                  {post.title}
                 </h4>
                 <p className="mt-2">
-                  Focus on build quality, real-world battery life, and how well
-                  a product fits into what you already own.
+                  {post.excerpt}
                 </p>
               </div>
             </div>
-
-            <p>
-              Whichever option you choose, make sure it solves an actual problem
-              you have rather than one a product page invented for you.
-            </p>
           </div>
 
           {/* Tags + share */}
           <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-y border-line py-5">
             <p className="text-xs text-muted">
-              Tags: <span className="text-ink">Gadgets</span>
+              Tags: <span className="text-ink">{post.category}</span>
             </p>
             <div className="flex items-center gap-4 text-muted">
               <span className="text-xs uppercase tracking-[0.1em]">Share:</span>
@@ -122,7 +151,7 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
 
           {/* Comments — real, auth-aware (logged-in users just type; others are
               prompted to sign in with Google; name/email come from the account) */}
-          <div className="mt-14">
+          <div id="comments" className="mt-14 scroll-mt-20">
             <CommentThread slug={`blog-${post.slug}`} />
           </div>
         </div>
@@ -137,17 +166,24 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
           </Link>
         </div>
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-          {related.map((p) => (
-            <article key={p.slug} className="group">
-              <Link href={`/blog/${p.slug}`} className="block aspect-[4/3] overflow-hidden">
-                <Ph src={p.image} alt={p.title} sizes="(max-width: 768px) 100vw, 380px" className="h-full w-full transition-transform duration-500 group-hover:scale-105" />
-              </Link>
-              <p className="mt-4 text-[11px] uppercase tracking-[0.1em] text-muted">{p.date} · {p.category}</p>
-              <h3 className="mt-2 text-sm font-medium uppercase tracking-[0.04em] text-ink group-hover:text-brand">
-                <Link href={`/blog/${p.slug}`}>{p.title}</Link>
-              </h3>
-            </article>
-          ))}
+          {related.map((p: BlogPost) => {
+            const relatedDate = new Date(p.publishedAt).toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+            });
+            return (
+              <article key={p.slug} className="group">
+                <Link href={`/blog/${p.slug}`} className="block aspect-[4/3] overflow-hidden">
+                  <Ph src={getImageForPost(p)} alt={p.title} sizes="(max-width: 768px) 100vw, 380px" className="h-full w-full transition-transform duration-500 group-hover:scale-105" />
+                </Link>
+                <p className="mt-4 text-[11px] uppercase tracking-[0.1em] text-muted">{relatedDate} · {p.category}</p>
+                <h3 className="mt-2 text-sm font-medium uppercase tracking-[0.04em] text-ink group-hover:text-brand">
+                  <Link href={`/blog/${p.slug}`}>{p.title}</Link>
+                </h3>
+              </article>
+            );
+          })}
         </div>
       </section>
 

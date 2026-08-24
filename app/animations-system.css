@@ -1,0 +1,147 @@
+/* ============================================
+   ANIMATION SYSTEM — keyframes & global styles
+   ============================================ */
+
+:root {
+  --anim-accent: #14b8a6;        /* teal accent (match prices) */
+  --anim-skeleton-base: #e8e8e8;
+  --anim-skeleton-shine: #f5f5f5;
+  --anim-ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ---- Shimmer (skeletons) ---- */
+@keyframes anim-shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* ---- Fade + slide up (cards / hero) ---- */
+@keyframes anim-fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ---- Block reveal: fade + large slide up ---- */
+@keyframes anim-block-reveal {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ---- Card cascade: fade + small slide up ---- */
+@keyframes anim-card-cascade {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ---- Slide in from left (section headers) ---- */
+@keyframes anim-slide-left {
+  from { opacity: 0; transform: translateX(-24px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ---- Progress bar indeterminate pulse ---- */
+@keyframes anim-progress-pulse {
+  0%   { opacity: 1; }
+  50%  { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+/* ---- Splash fade out ---- */
+@keyframes anim-splash-out {
+  to { opacity: 0; visibility: hidden; }
+}
+
+/* ---- Spinner ---- */
+@keyframes anim-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ============================================
+   REUSABLE CLASSES
+   ============================================ */
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--anim-skeleton-base) 25%,
+    var(--anim-skeleton-shine) 50%,
+    var(--anim-skeleton-base) 75%
+  );
+  background-size: 200% 100%;
+  animation: anim-shimmer 1.5s ease-in-out infinite;
+  border-radius: 6px;
+}
+
+/* Block-level reveal: 600ms with 24px slide */
+.block-reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s var(--anim-ease), transform 0.6s var(--anim-ease);
+  will-change: opacity, transform;
+}
+.block-reveal.in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Card cascade: 500ms with 16px slide, supports transition-delay for stagger */
+.card-cascade {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.5s var(--anim-ease), transform 0.5s var(--anim-ease);
+  will-change: opacity, transform;
+}
+.card-cascade.in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Element starts hidden; JS adds .in-view to trigger */
+.reveal {
+  opacity: 0;
+  will-change: opacity, transform;
+}
+.reveal.in-view {
+  animation: anim-fade-up 0.55s var(--anim-ease) forwards;
+}
+
+.reveal-left {
+  opacity: 0;
+  will-change: opacity, transform;
+}
+.reveal-left.in-view {
+  animation: anim-slide-left 0.5s var(--anim-ease) forwards;
+}
+
+/* ---- Product card micro-interactions ---- */
+.product-card-anim {
+  transition: transform 0.2s var(--anim-ease), box-shadow 0.2s var(--anim-ease);
+}
+.product-card-anim:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.10);
+}
+.product-card-anim .product-image {
+  overflow: hidden;
+}
+.product-card-anim .product-image img {
+  transition: transform 0.25s var(--anim-ease);
+}
+.product-card-anim:hover .product-image img {
+  transform: scale(1.03);
+}
+
+/* ============================================
+   REDUCED MOTION
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton { animation: none; }
+  .reveal, .reveal-left, .block-reveal, .card-cascade {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+    transition: none !important;
+  }
+  .product-card-anim:hover { transform: none; }
+  .product-card-anim:hover .product-image img { transform: none; }
+}
